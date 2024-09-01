@@ -15,13 +15,14 @@ In the **Infinite Mode**, each player can only use 3 pieces (like 3 'X's or 'O's
 
 
 ## Screenshot
-<img src="screenshot/HomeScreen.jpg" alt="Tic Tac Toe Game Screenshot" width="200"/>
-<img src="screenshot/GameScreen.jpg" alt="Tic Tac Toe Game Screenshot" width="200"/>
-<img src="screenshot/GameWinScreen.jpg" alt="Tic Tac Toe Game Screenshot" width="200"/>
-
+<p align="center">
+<img src="screenshot/HomeScreen.jpg" alt="Tic Tac Toe Game Screenshot" width="32%"/>
+<img src="screenshot/GameScreen.jpg" alt="Tic Tac Toe Game Screenshot" width="32%"/>
+<img src="screenshot/GameWinScreen.jpg" alt="Tic Tac Toe Game Screenshot" width="32%"/>
+</p>
 
 ## How to Enable Classic Mode
 1. Navigate to the settings.
 2. Disable the **Infinite Mode** toggle.
 3. The game will revert to the standard Tic Tac Toe rules.
-<img src="screenshot/Setting.jpg" alt="Tic Tac Toe Game Screenshot" width="200"/>
+<img src="screenshot/Setting.jpg" alt="Tic Tac Toe Game Screenshot" width="32%"/>
