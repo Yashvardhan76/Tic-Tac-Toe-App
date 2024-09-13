@@ -1,7 +1,6 @@
 package com.justlime.tictactoe.components
 
 import android.media.MediaPlayer
-import android.util.Log
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -25,8 +24,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.justlime.tictactoe.R
-import com.justlime.tictactoe.models.GameManager.soundState
-import com.justlime.tictactoe.models.Sound
+import com.justlime.tictactoe.game.isSoundChecked
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
@@ -44,9 +42,8 @@ fun GameButton(onClick: () -> Unit, text: String, padding: Dp = 10.dp) {
     }
     Button(
         onClick = {
-            Log.d("toggle", "Sound: ${soundState.value}")
             coroutineScope.launch {
-                if (soundState.value == Sound.ON) {
+                if (isSoundChecked.value) {
                     if (!buttonClickSound.isPlaying) {
                         buttonClickSound.seekTo(0)
                         buttonClickSound.start()

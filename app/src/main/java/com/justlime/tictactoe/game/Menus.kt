@@ -1,28 +1,25 @@
 package com.justlime.tictactoe.game
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.justlime.tictactoe.MainActivity
 import com.justlime.tictactoe.components.GameButton
 import com.justlime.tictactoe.components.GameSwitch
 import com.justlime.tictactoe.models.GameManager.currentMode
-import com.justlime.tictactoe.models.GameManager.gameType
-import com.justlime.tictactoe.models.GameManager.isInfinityChecked
-import com.justlime.tictactoe.models.GameManager.isMusicChecked
-import com.justlime.tictactoe.models.GameManager.isSoundChecked
-import com.justlime.tictactoe.models.GameManager.soundState
 import com.justlime.tictactoe.models.Mode
-import com.justlime.tictactoe.models.Sound
-import com.justlime.tictactoe.models.Type
+import com.justlime.tictactoe.models.SettingsViewModel
+import com.justlime.tictactoe.models.SettingsViewModelFactory
+import com.justlime.tictactoe.models.dataStore
 
 @Composable
 fun HomeMenu(navController: NavController) {
@@ -43,52 +40,73 @@ fun HomeMenu(navController: NavController) {
     }
 }
 
+val isSoundChecked =   mutableStateOf(true)
+val isMusicChecked =  mutableStateOf(false)
+val isInfinityChecked =   mutableStateOf(false)
+
 @Composable
 fun SettingMenu(navController: NavController) {
-    val context = LocalContext.current as MainActivity
+    val context = LocalContext.current
+    val dataStore = (context as MainActivity).dataStore
+
+    // Use the custom ViewModelFactory
+    val settingsViewModel: SettingsViewModel = viewModel(
+        factory = SettingsViewModelFactory(dataStore)
+    )
+
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        GameSwitch(text = "MUSIC", isChecked = isMusicChecked, onCheckedChange ={
-            isMusicChecked.value = it
-            if (isMusicChecked.value) {
-                context.playMusic()
-            } else {
-                context.pauseMusic()
+        GameSwitch(
+            text = "MUSIC",
+            isChecked = isMusicChecked.value,
+            onCheckedChange = {
+                isMusicChecked.value = it
+                if (isMusicChecked.value) {
+                    context.playMusic()
+                } else {
+                    context.pauseMusic()
+                }
+                settingsViewModel.saveSettings(
+                    isSoundChecked = isSoundChecked.value,
+                    isMusicChecked = isMusicChecked.value,
+                    isInfinityChecked = isInfinityChecked.value
+                )
             }
-        },onToggle = {
-        } )
-
+        )
 
         GameSwitch(
             text = "SOUND",
-            isChecked = isSoundChecked,
+            isChecked = isSoundChecked.value,
             onCheckedChange = {
                 isSoundChecked.value = it
-                if (isSoundChecked.value) soundState.value = Sound.ON else soundState.value =
-                    Sound.OFF
-                Log.d("toggle", "Sound: ${soundState.value}")
-            },
-            onToggle = {
-                // Additional action on toggle if needed
-
-            })
-        GameSwitch(
-            text = "INFINITY",
-            isChecked = isInfinityChecked,
-            onCheckedChange = {
-                isInfinityChecked.value = it
-                if (isInfinityChecked.value) gameType.value = Type.INFINITE else gameType.value =
-                    Type.SIMPLE
-                Log.d("toggle", "Type: ${gameType.value}")
-            },
-            onToggle = {
-                // Additional action on toggle if needed
+                // Update sound state and save settings
+                settingsViewModel.saveSettings(
+                    isSoundChecked = isSoundChecked.value,
+                    isMusicChecked = isMusicChecked.value,
+                    isInfinityChecked = isInfinityChecked.value
+                )
             }
         )
-        Spacer(modifier = Modifier.height(10.dp))
-        GameButton(onClick = { navController.navigate("home") }, "BACK", 20.dp)
 
+        GameSwitch(
+            text = "INFINITY",
+            isChecked = isInfinityChecked.value,
+            onCheckedChange = {
+                isInfinityChecked.value = it
+                settingsViewModel.saveSettings(
+                    isSoundChecked = isSoundChecked.value,
+                    isMusicChecked = isMusicChecked.value,
+                    isInfinityChecked = isInfinityChecked.value
+                )
+            }
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        GameButton(onClick = { navController.navigate("home") }, "BACK", 20.dp)
     }
 }
+
+

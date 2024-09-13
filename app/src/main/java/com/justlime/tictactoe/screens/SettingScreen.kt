@@ -18,6 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import com.justlime.tictactoe.components.GameTitle
 import com.justlime.tictactoe.game.SettingMenu
+import com.justlime.tictactoe.game.isSoundChecked
 
 @Composable
 fun SettingScreen(navController: NavController){
@@ -29,8 +30,10 @@ fun SettingScreen(navController: NavController){
         navController.navigate("home")
 
         // Handle back press action
-        backClickSoundEffect.seekTo(0)
-        backClickSoundEffect.start()
+        if(isSoundChecked.value) {
+            backClickSoundEffect.seekTo(0)
+            backClickSoundEffect.start()
+        }
     }
         Column(modifier = Modifier
             .fillMaxSize()

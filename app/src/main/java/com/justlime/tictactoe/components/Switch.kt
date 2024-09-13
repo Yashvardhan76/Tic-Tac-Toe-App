@@ -1,7 +1,6 @@
 package com.justlime.tictactoe.components
 
 import android.media.MediaPlayer
-import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -25,28 +23,20 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.justlime.tictactoe.models.GameManager.gameFont
-import com.justlime.tictactoe.models.GameManager.gameType
-import com.justlime.tictactoe.models.GameManager.isInfinityChecked
-import com.justlime.tictactoe.models.GameManager.isSoundChecked
-import com.justlime.tictactoe.models.GameManager.soundState
-import com.justlime.tictactoe.models.Sound
-import com.justlime.tictactoe.models.Type
 
 @Composable
 fun CustomSwitch(
-    isChecked: MutableState<Boolean>,
+    isChecked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     checkedTrackColor: Color = MaterialTheme.colorScheme.primary,
@@ -59,11 +49,11 @@ fun CustomSwitch(
     content: @Composable () -> Unit
 ) {
     val thumbOffset by animateDpAsState(
-        targetValue = if (isChecked.value) switchWidth - thumbRadius * 2 else 0.dp,
+        targetValue = if (isChecked) switchWidth - thumbRadius * 2 else 0.dp,
         label = ""
     )
     val animatedThumbColor by animateColorAsState(
-        targetValue = if (isChecked.value) thumbColor else uncheckedThumbColor,
+        targetValue = if (isChecked) thumbColor else uncheckedThumbColor,
         label = ""
     )
 
@@ -72,11 +62,11 @@ fun CustomSwitch(
             .width(switchWidth)
             .height(switchHeight)
             .background(
-                color = if (isChecked.value) checkedTrackColor else uncheckedTrackColor,
+                color = if (isChecked) checkedTrackColor else uncheckedTrackColor,
                 shape = RoundedCornerShape(percent = 50)
             )
             .clickable(
-                onClick = { onCheckedChange(!isChecked.value) },
+                onClick = { onCheckedChange(!isChecked) },
                 indication = null,
                 interactionSource = remember { MutableInteractionSource() }
             )
@@ -100,9 +90,9 @@ fun CustomSwitch(
 @Composable
 fun GameSwitch(
     text: String,
-    isChecked: MutableState<Boolean>,
+    isChecked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
-    onToggle: () -> Unit
+    onToggle: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val toggleSound =
@@ -142,7 +132,7 @@ fun GameSwitch(
                         onToggle() // Call the sound playback function
                     },
                 ) {
-                    if (isChecked.value) {
+                    if (isChecked) {
                         Text(text = "ON", color = Color.White, fontFamily = gameFont)
                     } else {
                         Text(text = "OFF", color = Color.White, fontFamily = gameFont)
@@ -150,48 +140,5 @@ fun GameSwitch(
                 }
             }
         }
-    }
-}
-
-@Preview
-@Composable
-fun SoundSwitchPreview() {
-    // Local state for the preview
-
-    if (isSoundChecked.value) soundState.value = Sound.ON else soundState.value = Sound.OFF
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF230F3D)),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        GameSwitch(
-            text = "SOUND",
-            isChecked = isSoundChecked,
-            onCheckedChange = {
-                isSoundChecked.value = it
-                if (isSoundChecked.value) soundState.value = Sound.ON else soundState.value = Sound.OFF
-                Log.d("toggle", "Sound: ${soundState.value}")
-            },
-            onToggle = {
-                // Additional action on toggle if needed
-
-            }
-        )
-        Spacer(modifier = Modifier.height(10.dp))
-        GameSwitch(
-            text = "INFINITY",
-            isChecked = isInfinityChecked,
-            onCheckedChange = {
-                isInfinityChecked.value = it
-                if (isInfinityChecked.value) gameType.value = Type.INFINITE else gameType.value = Type.SIMPLE
-                Log.d("toggle", "Type: ${gameType.value}")
-            },
-            onToggle = {
-                // Additional action on toggle if needed
-            }
-        )
-
     }
 }

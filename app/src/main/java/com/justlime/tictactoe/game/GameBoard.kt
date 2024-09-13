@@ -8,7 +8,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.Color
@@ -16,47 +15,38 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.justlime.tictactoe.components.PlayerBox
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.justlime.tictactoe.models.GameManager.currentMode
 import com.justlime.tictactoe.models.GameManager.currentPlayer
 import com.justlime.tictactoe.models.GameManager.gameFont
 import com.justlime.tictactoe.models.GameManager.gameStatus
-import com.justlime.tictactoe.models.GameManager.gameType
-import com.justlime.tictactoe.models.GameManager.soundState
 import com.justlime.tictactoe.models.GameManager.switchPlayer
 import com.justlime.tictactoe.models.GameState
+import com.justlime.tictactoe.models.GameViewModel
 import com.justlime.tictactoe.models.Mode
-import com.justlime.tictactoe.models.Sound
 import com.justlime.tictactoe.models.Symbol
-import com.justlime.tictactoe.models.Type
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
 @Composable
-fun CreateBoard(paddingValues: Dp = 20.dp, space: Dp = 10.dp) {
+fun CreateBoard(paddingValues: Dp = 20.dp, space: Dp = 10.dp,gameViewModel: GameViewModel = viewModel()) {
     val context = LocalContext.current
-    val winSoundEffect =
-        remember { MediaPlayer.create(context, com.justlime.tictactoe.R.raw.game_win_sfx) }
-    val drawSoundEffect =
-        remember { MediaPlayer.create(context, com.justlime.tictactoe.R.raw.game_draw_sfx) }
     val piecePutSoundEffect =
         remember { MediaPlayer.create(context, com.justlime.tictactoe.R.raw.piece_put_sfx) }
     val coroutineScope = rememberCoroutineScope()
 
     // Release when composable is no longer used
     DisposableEffect(Unit) {
-        onDispose { winSoundEffect.release() }
-        onDispose { drawSoundEffect.release() }
+
         onDispose { piecePutSoundEffect.release() }
     }
 
-    val winColorBox = remember { mutableStateListOf(-1) }
-    val boardState = remember { mutableStateListOf<Symbol?>().apply { resetBoardState(this) } }
-    val storedMoves = remember { mutableStateListOf<Int>() }
-    winSoundEffect.isLooping = false
-    drawSoundEffect.isLooping = false
+    val winColorBox = gameViewModel.winColorBox
+    val boardState = gameViewModel.boardState
+    val storedMoves = gameViewModel.storedMoves
+
     piecePutSoundEffect.isLooping = false
 
 
@@ -105,7 +95,7 @@ fun CreateBoard(paddingValues: Dp = 20.dp, space: Dp = 10.dp) {
 }
 
 
-private fun resetBoardState(boardState: MutableList<Symbol?>) {
+fun resetBoardState(boardState: MutableList<Symbol?>) {
     boardState.clear()
     boardState.addAll(List(9){Symbol.EMPTY})
 //    val initialSequence = listOf(Symbol.EMPTY, Symbol.O, Symbol.X, Symbol.X, Symbol.X, Symbol.O, Symbol.EMPTY, Symbol.EMPTY, Symbol.O)
@@ -118,7 +108,6 @@ private fun handlePlayerMove(
     boardState: MutableList<Symbol?>,
     storedMoves: MutableList<Int>,
     winColorBox: MutableList<Int>,
-
     piecePutSoundEffect: MediaPlayer,
     context: CoroutineScope
 ) {
@@ -133,7 +122,7 @@ private fun handlePlayerMove(
         Log.d("storedMoves", "------------")
     }
 
-    if (gameType.value == Type.INFINITE) {
+    if (isInfinityChecked.value) {
         //append index to storedMoves
         storedMoves.add(index)
         Log.d("storedMoves", "ADDED")
@@ -143,7 +132,7 @@ private fun handlePlayerMove(
             boardState[oldestMoveIndex] = Symbol.EMPTY
         }
     }
-    if (soundState.value == Sound.ON) {
+    if (isSoundChecked.value) {
         piecePutSoundEffect.seekTo(0)
         piecePutSoundEffect.start()
     }
@@ -168,7 +157,7 @@ private fun handlePlayerMove(
         context.launch {
             delay(500)
             // Perform AI move
-            if (gameType.value == Type.INFINITE) {
+            if (isInfinityChecked.value) {
                 if (storedMoves.size >= 5) {
                     val aiIndex = makeAIMoveForInfinityMode(boardState, storedMoves)
                     //append index to storedMoves
@@ -185,7 +174,7 @@ private fun handlePlayerMove(
                 }
             } else makeAIMove(boardState)
 
-            if (soundState.value == Sound.ON) {
+            if (isSoundChecked.value) {
                 piecePutSoundEffect.seekTo(0)
                 piecePutSoundEffect.start()
             }

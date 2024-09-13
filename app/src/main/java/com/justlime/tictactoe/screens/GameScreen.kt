@@ -30,15 +30,14 @@ import androidx.navigation.NavController
 import com.justlime.tictactoe.components.GameButton
 import com.justlime.tictactoe.components.GameTitle
 import com.justlime.tictactoe.game.CreateBoard
+import com.justlime.tictactoe.game.isSoundChecked
 import com.justlime.tictactoe.models.GameManager.currentMode
 import com.justlime.tictactoe.models.GameManager.currentPlayer
 import com.justlime.tictactoe.models.GameManager.gameFont
 import com.justlime.tictactoe.models.GameManager.gameStatus
 import com.justlime.tictactoe.models.GameManager.reset
-import com.justlime.tictactoe.models.GameManager.soundState
 import com.justlime.tictactoe.models.GameState
 import com.justlime.tictactoe.models.Mode
-import com.justlime.tictactoe.models.Sound
 import com.justlime.tictactoe.models.Symbol
 import com.justlime.tictactoe.models.WindowInfo
 import com.justlime.tictactoe.models.rememberWindowInfo
@@ -60,8 +59,10 @@ fun GameScreen(navController: NavController) {
         navController.navigate("home")
 
         // Handle back press action
-        backClickSoundEffect.seekTo(0)
-        backClickSoundEffect.start()
+        if(isSoundChecked.value) {
+            backClickSoundEffect.seekTo(0)
+            backClickSoundEffect.start()
+        }
     }
 
     // Game status message
@@ -73,14 +74,14 @@ fun GameScreen(navController: NavController) {
                     if (currentMode.value == Mode.SINGLE) {
                         if (currentPlayer.value == Symbol.X) {
                             // Play win sound effect here (once)
-                            if (soundState.value == Sound.ON) {
+                            if (isSoundChecked.value) {
                                 winSoundEffect.seekTo(0)
                                 winSoundEffect.start()
                             }
                             "Victory"
                         } else {
                             // Play defeat sound effect here (once)
-                            if (soundState.value == Sound.ON) {
+                            if (isSoundChecked.value) {
                                 defeatSoundEffect.seekTo(0)
                                 defeatSoundEffect.start()
                             }
@@ -88,7 +89,7 @@ fun GameScreen(navController: NavController) {
                         }
                     } else {
                         // Play win sound effect here (once)
-                        if (soundState.value == Sound.ON) {
+                        if (isSoundChecked.value) {
                             winSoundEffect.seekTo(0)
                             winSoundEffect.start()
                         }
@@ -98,8 +99,10 @@ fun GameScreen(navController: NavController) {
 
                 GameState.DRAW -> {
                     // Play draw sound effect here (once)
-                    drawSoundEffect.seekTo(0)
-                    drawSoundEffect.start()
+                    if(isSoundChecked.value) {
+                        drawSoundEffect.seekTo(0)
+                        drawSoundEffect.start()
+                    }
                     "TIE!"
                 }
 
